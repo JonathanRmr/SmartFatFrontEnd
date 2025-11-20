@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFit - Mis Rutinas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <div class="logo-container">
+                    <img src="resources/icons/pesa.png" alt="SmartFit Logo" class="logo-img">
+                    <h1>SmartFit</h1>
+                </div>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Usuario</span>
+                    <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <div class="section-header">
+                <h2>Mis Rutinas</h2>
+                <button class="btn-add" onclick="openAddRoutineModal()">
+                    <img src="resources/icons/agregar.png" alt="Agregar">
+                    Nueva Rutina
+                </button>
+            </div>
+
+            <!-- Grid de Rutinas -->
+            <div id="routinesContainer" class="routines-grid">
+                <!-- Las rutinas se cargarán aquí dinámicamente -->
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando rutinas...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

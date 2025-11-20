@@ -1,0 +1,207 @@
+// Configuración de la API
+const API_URL = 'http://localhost:3000/api';
+
+// Verificar autenticación al cargar la página
+window.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // Mostrar nombre del usuario
+    document.getElementById('userName').textContent = usuario.nombre || 'Usuario';
+    
+    // Cargar rutinas
+    loadRoutines();
+});
+
+// Cerrar sesión
+function logout() {
+    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+        window.location.href = 'index.html';
+    }
+}
+
+// Cargar rutinas del usuario
+async function loadRoutines() {
+    const token = localStorage.getItem('token');
+    const container = document.getElementById('routinesContainer');
+    
+    try {
+        const response = await fetch(`${API_URL}/rutinas`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.status === 401 || response.status === 403) {
+            logout();
+            return;
+        }
+        
+        const rutinas = await response.json();
+        
+        if (rutinas.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <h3>No tienes rutinas aún</h3>
+                    <p>Crea tu primera rutina para comenzar a entrenar</p>
+                    <button class="btn-primary" onclick="openAddRoutineModal()">Crear Primera Rutina</button>
+                </div>
+            `;
+            return;
+        }
+        
+        // Renderizar rutinas
+        container.innerHTML = rutinas.map(rutina => `
+            <div class="routine-card">
+                <h3>${rutina.nombre}</h3>
+                <p class="routine-date">
+                    ${rutina.fecha ? formatDate(rutina.fecha) : 'Sin fecha asignada'}
+                </p>
+                <div class="routine-actions">
+                    <button class="btn-small btn-start" onclick="startRoutine(${rutina.id_rutina})">
+                        ▶ Entrenar
+                    </button>
+                    <button class="btn-small btn-edit" onclick="editRoutine(${rutina.id_rutina})">
+                        ✏️
+                    </button>
+                    <button class="btn-small btn-delete-small" onclick="deleteRoutine(${rutina.id_rutina}, '${rutina.nombre}')">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error:', error);
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <h3>Error al cargar las rutinas</h3>
+                <p>Verifica tu conexión e intenta nuevamente</p>
+                <button class="btn-primary" onclick="loadRoutines()">Reintentar</button>
+            </div>
+        `;
+    }
+}
+
+// Formatear fecha
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('es-ES', options);
+}
+
+// Abrir modal para agregar rutina
+function openAddRoutineModal() {
+    document.getElementById('addRoutineModal').classList.add('show');
+    document.getElementById('routineName').value = '';
+    document.getElementById('routineDate').value = '';
+    hideModalMessage();
+}
+
+// Cerrar modal
+function closeAddRoutineModal() {
+    document.getElementById('addRoutineModal').classList.remove('show');
+}
+
+// Manejar creación de rutina
+async function handleAddRoutine(event) {
+    event.preventDefault();
+    
+    const token = localStorage.getItem('token');
+    const nombre = document.getElementById('routineName').value;
+    const fecha = document.getElementById('routineDate').value || null;
+    
+    try {
+        const response = await fetch(`${API_URL}/rutinas`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ nombre, fecha })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showModalMessage('¡Rutina creada exitosamente!', 'success');
+            setTimeout(() => {
+                closeAddRoutineModal();
+                loadRoutines();
+            }, 1500);
+        } else {
+            showModalMessage(data.error || 'Error al crear la rutina');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showModalMessage('Error de conexión');
+    }
+}
+
+// Iniciar rutina (redirigir a página de entrenamiento)
+function startRoutine(id_rutina) {
+    window.location.href = `workout.html?id=${id_rutina}`;
+}
+
+// Editar rutina
+function editRoutine(id_rutina) {
+    alert(`Función de edición en desarrollo para rutina ID: ${id_rutina}`);
+    // TODO: Implementar modal de edición
+}
+
+// Eliminar rutina
+async function deleteRoutine(id_rutina, nombre) {
+    if (!confirm(`¿Estás seguro de eliminar la rutina "${nombre}"? Esta acción no se puede deshacer.`)) {
+        return;
+    }
+    
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`${API_URL}/rutinas/${id_rutina}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            loadRoutines();
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Error al eliminar la rutina');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión');
+    }
+}
+
+// Funciones para mensajes en modal
+function showModalMessage(message, type = 'error') {
+    const messageDiv = document.getElementById('modalMessage');
+    messageDiv.textContent = message;
+    messageDiv.className = `message ${type} show`;
+}
+
+function hideModalMessage() {
+    const messageDiv = document.getElementById('modalMessage');
+    messageDiv.className = 'message';
+}
+
+// Cerrar modal al hacer clic fuera de él
+window.onclick = function(event) {
+    const modal = document.getElementById('addRoutineModal');
+    if (event.target === modal) {
+        closeAddRoutineModal();
+    }
+}
