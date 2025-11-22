@@ -99,52 +99,9 @@ function formatDate(dateString) {
     return date.toLocaleDateString('es-ES', options);
 }
 
-// Abrir modal para agregar rutina
+// Redirigir a la página de crear rutina
 function openAddRoutineModal() {
-    document.getElementById('addRoutineModal').classList.add('show');
-    document.getElementById('routineName').value = '';
-    document.getElementById('routineDate').value = '';
-    hideModalMessage();
-}
-
-// Cerrar modal
-function closeAddRoutineModal() {
-    document.getElementById('addRoutineModal').classList.remove('show');
-}
-
-// Manejar creación de rutina
-async function handleAddRoutine(event) {
-    event.preventDefault();
-    
-    const token = localStorage.getItem('token');
-    const nombre = document.getElementById('routineName').value;
-    const fecha = document.getElementById('routineDate').value || null;
-    
-    try {
-        const response = await fetch(`${API_URL}/rutinas`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ nombre, fecha })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            showModalMessage('¡Rutina creada exitosamente!', 'success');
-            setTimeout(() => {
-                closeAddRoutineModal();
-                loadRoutines();
-            }, 1500);
-        } else {
-            showModalMessage(data.error || 'Error al crear la rutina');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showModalMessage('Error de conexión');
-    }
+    window.location.href = 'create-rutine.html';
 }
 
 // Iniciar rutina (redirigir a página de entrenamiento)
@@ -183,25 +140,5 @@ async function deleteRoutine(id_rutina, nombre) {
     } catch (error) {
         console.error('Error:', error);
         alert('Error de conexión');
-    }
-}
-
-// Funciones para mensajes en modal
-function showModalMessage(message, type = 'error') {
-    const messageDiv = document.getElementById('modalMessage');
-    messageDiv.textContent = message;
-    messageDiv.className = `message ${type} show`;
-}
-
-function hideModalMessage() {
-    const messageDiv = document.getElementById('modalMessage');
-    messageDiv.className = 'message';
-}
-
-// Cerrar modal al hacer clic fuera de él
-window.onclick = function(event) {
-    const modal = document.getElementById('addRoutineModal');
-    if (event.target === modal) {
-        closeAddRoutineModal();
     }
 }
