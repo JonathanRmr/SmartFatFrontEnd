@@ -11,12 +11,66 @@ window.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // Mostrar nombre del usuario
+    // Mostrar nombre del usuario en navbar
     document.getElementById('userName').textContent = usuario.nombre || 'Usuario';
+    
+    // Mostrar información del usuario en sidebar
+    if (document.getElementById('userNameSidebar')) {
+        document.getElementById('userNameSidebar').textContent = usuario.nombre || 'Usuario';
+    }
+    if (document.getElementById('userEmailSidebar')) {
+        document.getElementById('userEmailSidebar').textContent = usuario.correo || 'email@example.com';
+    }
     
     // Cargar rutinas
     loadRoutines();
 });
+
+// ========================================
+// FUNCIONES DEL MENÚ LATERAL
+// ========================================
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+    
+    // Prevenir scroll del body cuando el menú está abierto
+    if (sidebar.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Cerrar sidebar al hacer clic en un enlace (opcional)
+document.addEventListener('DOMContentLoaded', () => {
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            // Si es un enlace de navegación (no un onclick), cerrar el sidebar
+            if (link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) {
+                toggleSidebar();
+            }
+        });
+    });
+});
+
+// Cerrar sidebar con tecla ESC
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && sidebar.classList.contains('active')) {
+            toggleSidebar();
+        }
+    }
+});
+
+// ========================================
+// FUNCIONES EXISTENTES
+// ========================================
 
 // Cerrar sesión
 function logout() {
