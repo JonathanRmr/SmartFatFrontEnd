@@ -846,3 +846,324 @@ input:focus {
         padding: 20px;
     }
 }
+
+/* ========================================
+   ESTILOS PARA WORKOUT (ENTRENAMIENTO)
+   ======================================== */
+
+.workout-header {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.workout-info {
+    color: var(--text-light);
+    margin-top: 8px;
+    font-size: 0.95rem;
+}
+
+.workout-timer {
+    text-align: right;
+}
+
+.timer-display {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.workout-exercises {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.workout-exercise-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.workout-exercise-card.exercise-completed {
+    border-color: #10b981;
+    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+.exercise-header-workout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.exercise-header-workout h3 {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    margin-bottom: 5px;
+}
+
+.exercise-progress {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.sets-completed {
+    padding: 8px 16px;
+    background: var(--bg-dark);
+    border-radius: 8px;
+}
+
+.workout-series-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.workout-serie-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--bg-dark);
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.workout-serie-item.completed {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, var(--bg-dark) 100%);
+    border-color: #10b981;
+}
+
+.serie-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.serie-badge {
+    padding: 6px 12px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.serie-details {
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.serie-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.serie-input-small {
+    width: 80px;
+    padding: 8px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: var(--card-bg);
+    color: var(--text-dark);
+    text-align: center;
+}
+
+.serie-input-small:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.serie-input-small:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-complete-set {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent-color);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-complete-set:hover:not(:disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(136, 41, 47, 0.4);
+}
+
+.btn-complete-set:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Cronómetro de descanso */
+.rest-timer-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+}
+
+.rest-timer-container.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.rest-timer-container.show {
+    display: flex;
+    opacity: 1;
+    animation: fadeIn 0.3s ease;
+}
+
+.rest-timer-content {
+    text-align: center;
+    background: var(--card-bg);
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+}
+
+.rest-timer-content h3 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: var(--text-dark);
+}
+
+.rest-timer-display {
+    font-size: 5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-bottom: 30px;
+    font-variant-numeric: tabular-nums;
+}
+
+.rest-timer-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.btn-rest {
+    padding: 12px 24px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-rest:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.rest-next-exercise {
+    color: var(--text-light);
+    font-size: 1.1rem;
+    margin-top: 20px;
+}
+
+.rest-next-exercise span {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.workout-actions {
+    text-align: center;
+    margin-top: 40px;
+    padding-bottom: 40px;
+}
+
+.btn-finish-workout {
+    padding: 16px 40px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.btn-finish-workout:hover {
+    background: #6b1f23;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Responsive para workout */
+@media (max-width: 768px) {
+    .workout-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .timer-display {
+        font-size: 1.5rem;
+    }
+
+    .rest-timer-display {
+        font-size: 3.5rem;
+    }
+
+    .rest-timer-content {
+        padding: 30px;
+    }
+
+    .serie-actions {
+        flex-wrap: wrap;
+    }
+
+    .serie-input-small {
+        width: 60px;
+    }
+
+    .workout-exercise-card {
+        padding: 20px;
+    }
+
+    .exercise-header-workout {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

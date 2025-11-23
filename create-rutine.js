@@ -37,25 +37,56 @@ async function loadExercises() {
     const container = document.getElementById('exercisesGrid');
     
     try {
+        console.log('🔄 Cargando ejercicios...');
         const response = await fetch(`${API_URL}/ejercicios`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         
+        console.log('📡 Response status:', response.status);
+        
         if (response.status === 401 || response.status === 403) {
+            console.error('❌ No autorizado');
             logout();
             return;
         }
         
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
         allExercises = await response.json();
+        console.log('✅ Ejercicios cargados:', allExercises.length);
+        
+        if (allExercises.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">💪</div>
+                    <h3>No hay ejercicios disponibles</h3>
+                    <p>Debes crear ejercicios primero usando Postman o la API</p>
+                    <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-light);">
+                        Ejemplo: POST /api/ejercicios<br>
+                        {"nombre": "Sentadillas", "grupo_muscular": "Piernas"}
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
         displayExercises(allExercises);
         
     } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Error al cargar ejercicios:', error);
         container.innerHTML = `
             <div class="empty-state">
-                <p>Error al cargar ejercicios. Verifica tu conexión.</p>
+                <div class="empty-state-icon">⚠️</div>
+                <h3>Error al cargar ejercicios</h3>
+                <p>${error.message}</p>
+                <p style="margin-top: 10px; font-size: 0.9rem;">Verifica que el servidor esté corriendo en http://localhost:3000</p>
+                <button class="btn-primary" onclick="loadExercises()" style="margin-top: 15px;">
+                    🔄 Reintentar
+                </button>
             </div>
         `;
     }
@@ -122,6 +153,8 @@ function addExercise(id_ejercicio) {
     const exercise = allExercises.find(e => e.id_ejercicio === id_ejercicio);
     if (!exercise) return;
     
+    console.log('➕ Agregando ejercicio:', exercise.nombre);
+    
     // Agregar con una serie por defecto
     selectedExercises.push({
         ...exercise,
@@ -162,30 +195,39 @@ function displaySelectedExercises() {
                 ${exercise.series.map((serie, serieIndex) => `
                     <div class="serie-item">
                         <span class="serie-number">Serie ${serie.numero_serie}</span>
-                        <input 
-                            type="number" 
-                            class="serie-input" 
-                            placeholder="Reps" 
-                            value="${serie.repeticiones}"
-                            min="1"
-                            onchange="updateSerie(${exerciseIndex}, ${serieIndex}, 'repeticiones', this.value)">
-                        <input 
-                            type="number" 
-                            class="serie-input" 
-                            placeholder="Peso (kg)" 
-                            value="${serie.peso_usado}"
-                            step="0.5"
-                            min="0"
-                            onchange="updateSerie(${exerciseIndex}, ${serieIndex}, 'peso_usado', this.value)">
-                        <input 
-                            type="number" 
-                            class="serie-input" 
-                            placeholder="Descanso (seg)" 
-                            value="${serie.descanso_segundos}"
-                            min="0"
-                            onchange="updateSerie(${exerciseIndex}, ${serieIndex}, 'descanso_segundos', this.value)">
+                        <div style="display: flex; flex-direction: column; flex: 1;">
+                            <label style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 2px;">Repeticiones</label>
+                            <input 
+                                type="number" 
+                                class="serie-input" 
+                                placeholder="10" 
+                                value="${serie.repeticiones}"
+                                min="1"
+                                onchange="updateSerie(${exerciseIndex}, ${serieIndex}, 'repeticiones', this.value)">
+                        </div>
+                        <div style="display: flex; flex-direction: column; flex: 1;">
+                            <label style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 2px;">Peso (kg)</label>
+                            <input 
+                                type="number" 
+                                class="serie-input" 
+                                placeholder="0" 
+                                value="${serie.peso_usado}"
+                                step="0.5"
+                                min="0"
+                                onchange="updateSerie(${exerciseIndex}, ${serieIndex}, 'peso_usado', this.value)">
+                        </div>
+                        <div style="display: flex; flex-direction: column; flex: 1;">
+                            <label style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 2px;">Descanso (seg)</label>
+                            <input 
+                                type="number" 
+                                class="serie-input" 
+                                placeholder="60" 
+                                value="${serie.descanso_segundos}"
+                                min="0"
+                                onchange="updateSerie(${exerciseIndex}, ${serieIndex}, 'descanso_segundos', this.value)">
+                        </div>
                         ${exercise.series.length > 1 ? `
-                            <button class="btn-remove-serie" onclick="removeSerie(${exerciseIndex}, ${serieIndex})">✕</button>
+                            <button class="btn-remove-serie" onclick="removeSerie(${exerciseIndex}, ${serieIndex})" title="Eliminar serie">✕</button>
                         ` : ''}
                     </div>
                 `).join('')}
@@ -197,6 +239,7 @@ function displaySelectedExercises() {
 
 // Eliminar ejercicio de la selección
 function removeExercise(exerciseIndex) {
+    console.log('🗑️ Eliminando ejercicio');
     selectedExercises.splice(exerciseIndex, 1);
     displaySelectedExercises();
     filterExercises(); // Actualizar el grid
@@ -263,6 +306,8 @@ async function saveRoutine() {
     const token = localStorage.getItem('token');
     
     try {
+        console.log('💾 Guardando rutina:', nombre);
+        
         // 1. Crear la rutina
         const rutinaResponse = await fetch(`${API_URL}/rutinas`, {
             method: 'POST',
@@ -281,9 +326,13 @@ async function saveRoutine() {
         const rutinaData = await rutinaResponse.json();
         const id_rutina = rutinaData.id_rutina;
         
+        console.log('✅ Rutina creada con ID:', id_rutina);
+        
         // 2. Agregar las series de cada ejercicio
         for (const exercise of selectedExercises) {
             for (const serie of exercise.series) {
+                console.log(`📝 Agregando serie ${serie.numero_serie} de ${exercise.nombre}`);
+                
                 const serieResponse = await fetch(`${API_URL}/series`, {
                     method: 'POST',
                     headers: {
@@ -314,7 +363,7 @@ async function saveRoutine() {
         }, 1500);
         
     } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Error:', error);
         showMessage(error.message || 'Error al guardar la rutina', 'error');
     }
 }
